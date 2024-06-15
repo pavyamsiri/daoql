@@ -16,7 +16,19 @@ impl<'a> Lexer<'a> {
 
         let current_offset = self.offset;
 
+        // Handle comments
         if let Some(kind) = self.lex_inline_comment() {
+            return Some(Token {
+                kind,
+                span: Span {
+                    start: current_offset,
+                    length: self.offset - current_offset,
+                },
+            });
+        }
+
+        // Handle integer literals
+        if let Some(kind) = self.lex_integer_literal() {
             return Some(Token {
                 kind,
                 span: Span {
@@ -151,6 +163,23 @@ impl<'a> Lexer<'a> {
         }
 
         Some(TokenKind::InlineComment)
+    }
+
+    fn lex_integer_literal(&mut self) -> Option<TokenKind> {
+        // TODO: Handle hexadecimal
+        let current_char = self.peek()?;
+        if !current_char.is_digit(10) {
+            return None;
+        }
+
+        while let Some(c) = self.peek() {
+            if !c.is_digit(10) {
+                break;
+            }
+            self.advance();
+        }
+
+        Some(TokenKind::IntegerLiteral)
     }
 
     fn skip_whitespace(&mut self) {
