@@ -5,6 +5,8 @@ pub use keyword::Keyword;
 pub enum TokenKind {
     Comma,
     Semicolon,
+    LeftParenthesis,
+    RightParenthesis,
 
     Keyword(Keyword),
     Identifier,

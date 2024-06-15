@@ -67,6 +67,8 @@ impl<'a> Lexer<'a> {
         let kind = match current_char {
             ',' => TokenKind::Comma,
             ';' => TokenKind::Semicolon,
+            '(' => TokenKind::LeftParenthesis,
+            ')' => TokenKind::RightParenthesis,
             _ => return None,
         };
 
