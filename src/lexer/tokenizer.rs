@@ -56,6 +56,7 @@ impl<'a> Lexer<'a> {
         let current_char = self.peek()?;
         let kind = match current_char {
             ',' => TokenKind::Comma,
+            ';' => TokenKind::Semicolon,
             _ => return None,
         };
 
