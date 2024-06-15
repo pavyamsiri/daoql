@@ -7,4 +7,7 @@ pub enum TokenKind {
 
     Keyword(Keyword),
     Identifier,
+
+    SingleQuotedStringLiteral,
+    DoubleQuotedStringLiteral,
 }

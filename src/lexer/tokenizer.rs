@@ -27,6 +27,17 @@ impl<'a> Lexer<'a> {
             });
         }
 
+        // Handle string literals
+        if let Some(kind) = self.lex_string_literal() {
+            return Some(Token {
+                kind,
+                span: Span {
+                    start: current_offset,
+                    length: self.offset - current_offset,
+                },
+            });
+        }
+
         // Handle identifiers or keywords
         if let Some(kind) = self.lex_identifier_or_keyword() {
             return Some(Token {
@@ -72,6 +83,23 @@ impl<'a> Lexer<'a> {
             "FROM" => Some(TokenKind::Keyword(Keyword::From)),
             _ => Some(TokenKind::Identifier),
         }
+    }
+
+    fn lex_string_literal(&mut self) -> Option<TokenKind> {
+        let current_char = self.peek()?;
+        let (open_quote, kind) = match current_char {
+            '"' => ('"', TokenKind::DoubleQuotedStringLiteral),
+            '\'' => ('\'', TokenKind::SingleQuotedStringLiteral),
+            _ => return None,
+        };
+        self.advance();
+        while let Some(current_char) = self.peek() {
+            self.advance();
+            if current_char == open_quote {
+                break;
+            }
+        }
+        Some(kind)
     }
 
     fn skip_whitespace(&mut self) {
