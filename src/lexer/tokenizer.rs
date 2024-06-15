@@ -96,6 +96,9 @@ impl<'a> Lexer<'a> {
             "FROM" => Some(TokenKind::Keyword(Keyword::From)),
             "CREATE" => Some(TokenKind::Keyword(Keyword::Create)),
             "TABLE" => Some(TokenKind::Keyword(Keyword::Table)),
+            "INT" => Some(TokenKind::Keyword(Keyword::Int)),
+            "PRIMARY" => Some(TokenKind::Keyword(Keyword::Primary)),
+            "KEY" => Some(TokenKind::Keyword(Keyword::Key)),
             _ => Some(TokenKind::Identifier),
         }
     }

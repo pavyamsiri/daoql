@@ -4,4 +4,7 @@ pub enum Keyword {
     From,
     Create,
     Table,
+    Int,
+    Primary,
+    Key,
 }

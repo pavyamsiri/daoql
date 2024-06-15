@@ -27,7 +27,7 @@ fn main() {
         let token_kind = &token.kind;
         let span = &token.span;
         let token_slice = &text[span.start..span.start + span.length];
-        println!("Token {token_kind:?}: {token_slice}");
+        println!("Token {token_kind}: {token_slice}");
     }
 }
 
