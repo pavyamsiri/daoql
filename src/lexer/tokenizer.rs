@@ -78,8 +78,13 @@ impl<'a> Lexer<'a> {
 
     fn lex_identifier_or_keyword(&mut self) -> Option<TokenKind> {
         let current_offset = self.offset;
+        let current_char = self.peek()?;
+        if !current_char.is_ascii_alphabetic() {
+            return None;
+        }
+        self.advance();
         while let Some(current_char) = self.peek() {
-            if current_char.is_alphanumeric() || current_char == '_' {
+            if current_char.is_ascii_alphanumeric() || current_char == '_' {
                 self.advance();
             } else {
                 break;
