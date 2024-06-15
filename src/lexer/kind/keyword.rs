@@ -7,4 +7,11 @@ pub enum Keyword {
     Int,
     Primary,
     Key,
+    VarChar,
+    Date,
+    Decimal,
+    Insert,
+    Into,
+    Value,
+    Values,
 }

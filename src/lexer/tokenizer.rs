@@ -99,6 +99,13 @@ impl<'a> Lexer<'a> {
             "INT" => Some(TokenKind::Keyword(Keyword::Int)),
             "PRIMARY" => Some(TokenKind::Keyword(Keyword::Primary)),
             "KEY" => Some(TokenKind::Keyword(Keyword::Key)),
+            "VARCHAR" => Some(TokenKind::Keyword(Keyword::VarChar)),
+            "DATE" => Some(TokenKind::Keyword(Keyword::Date)),
+            "DECIMAL" => Some(TokenKind::Keyword(Keyword::Decimal)),
+            "INSERT" => Some(TokenKind::Keyword(Keyword::Insert)),
+            "INTO" => Some(TokenKind::Keyword(Keyword::Into)),
+            "VALUE" => Some(TokenKind::Keyword(Keyword::Value)),
+            "VALUES" => Some(TokenKind::Keyword(Keyword::Values)),
             _ => Some(TokenKind::Identifier),
         }
     }
