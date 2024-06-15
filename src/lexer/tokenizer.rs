@@ -16,6 +16,16 @@ impl<'a> Lexer<'a> {
 
         let current_offset = self.offset;
 
+        if let Some(kind) = self.lex_inline_comment() {
+            return Some(Token {
+                kind,
+                span: Span {
+                    start: current_offset,
+                    length: self.offset - current_offset,
+                },
+            });
+        }
+
         // Handle single character tokens
         if let Some(kind) = self.lex_single_character_token() {
             return Some(Token {
@@ -101,6 +111,27 @@ impl<'a> Lexer<'a> {
             }
         }
         Some(kind)
+    }
+
+    fn lex_inline_comment(&mut self) -> Option<TokenKind> {
+        let current_char = self.peek()?;
+        let next_char = self.peek_ahead(1)?;
+        match (current_char, next_char) {
+            ('-', '-') => {
+                self.advance();
+                self.advance();
+            }
+            _ => return None,
+        }
+
+        while let Some(current_char) = self.peek() {
+            if current_char == '\r' || current_char == '\n' {
+                break;
+            }
+            self.advance();
+        }
+
+        Some(TokenKind::InlineComment)
     }
 
     fn skip_whitespace(&mut self) {

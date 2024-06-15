@@ -11,4 +11,6 @@ pub enum TokenKind {
 
     SingleQuotedStringLiteral,
     DoubleQuotedStringLiteral,
+
+    InlineComment,
 }
