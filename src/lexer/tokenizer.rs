@@ -92,6 +92,8 @@ impl<'a> Lexer<'a> {
         match token_slice.to_uppercase().as_str() {
             "SELECT" => Some(TokenKind::Keyword(Keyword::Select)),
             "FROM" => Some(TokenKind::Keyword(Keyword::From)),
+            "CREATE" => Some(TokenKind::Keyword(Keyword::Create)),
+            "TABLE" => Some(TokenKind::Keyword(Keyword::Table)),
             _ => Some(TokenKind::Identifier),
         }
     }

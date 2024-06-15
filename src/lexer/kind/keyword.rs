@@ -2,4 +2,6 @@
 pub enum Keyword {
     Select,
     From,
+    Create,
+    Table,
 }
