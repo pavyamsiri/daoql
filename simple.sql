@@ -1,1 +1,1 @@
-SELECT id, name FROM 'users.csv'
+SELECT id, name FROM "users.csv";
