@@ -3,26 +3,26 @@ pub use keyword::Keyword;
 
 #[derive(Debug)]
 pub enum TokenKind {
-    // percent %
-    // plus sign +
-    // minus sign -
-    // solidus /
-    // colon :
-    // less than operator <
-    // equals operator =
-    // greater than operator >
-    // underscore _
-    // ampersand &
-    // question mark ?
-    // circumflex ^
-    // tilde ~
-    // vertical bar |
     Asterisk,
     Comma,
+    Colon,
     Semicolon,
     LeftParenthesis,
     RightParenthesis,
+    Percent,
     Period,
+    Plus,
+    Minus,
+    Solidus,
+    LessThan,
+    GreaterThan,
+    Equals,
+    Underscore,
+    Ampersand,
+    QuestionMark,
+    Circumflex,
+    Tilde,
+    VerticalBar,
 
     Keyword(Keyword),
     Identifier,
@@ -36,6 +36,34 @@ pub enum TokenKind {
     ExponentLiteral,
 
     InlineComment,
+}
+
+impl TokenKind {
+    pub fn parse_single_character(c: char) -> Option<TokenKind> {
+        match c {
+            '*' => Some(TokenKind::Asterisk),
+            ',' => Some(TokenKind::Comma),
+            ':' => Some(TokenKind::Colon),
+            ';' => Some(TokenKind::Semicolon),
+            '(' => Some(TokenKind::LeftParenthesis),
+            ')' => Some(TokenKind::RightParenthesis),
+            '%' => Some(TokenKind::Percent),
+            '.' => Some(TokenKind::Period),
+            '+' => Some(TokenKind::Plus),
+            '-' => Some(TokenKind::Minus),
+            '/' => Some(TokenKind::Solidus),
+            '<' => Some(TokenKind::LessThan),
+            '>' => Some(TokenKind::GreaterThan),
+            '=' => Some(TokenKind::Equals),
+            '_' => Some(TokenKind::Underscore),
+            '&' => Some(TokenKind::Ampersand),
+            '?' => Some(TokenKind::QuestionMark),
+            '^' => Some(TokenKind::Circumflex),
+            '~' => Some(TokenKind::Tilde),
+            '|' => Some(TokenKind::VerticalBar),
+            _ => None,
+        }
+    }
 }
 
 impl std::fmt::Display for TokenKind {

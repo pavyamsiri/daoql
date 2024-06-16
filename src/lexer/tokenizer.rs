@@ -45,15 +45,7 @@ impl<'a> Lexer<'a> {
     fn lex_single_character_token(&mut self) -> Option<Token> {
         let initial_offset = self.offset;
         let current_char = self.peek()?;
-        let kind = match current_char {
-            ',' => TokenKind::Comma,
-            ';' => TokenKind::Semicolon,
-            '(' => TokenKind::LeftParenthesis,
-            ')' => TokenKind::RightParenthesis,
-            '*' => TokenKind::Asterisk,
-            '.' => TokenKind::Period,
-            _ => return None,
-        };
+        let kind = TokenKind::parse_single_character(current_char)?;
 
         self.advance();
         Some(Token {
