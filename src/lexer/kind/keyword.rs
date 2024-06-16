@@ -271,7 +271,6 @@ pub enum Keyword {
 impl Keyword {
     pub fn parse(string: &str) -> Option<Keyword> {
         match string {
-            "SELECT" => Some(Keyword::Select),
             "ABSOLUTE" => Some(Keyword::Absolute),
             "ACTION" => Some(Keyword::Action),
             "ADD" => Some(Keyword::Add),
@@ -345,7 +344,7 @@ impl Keyword {
             "DROP" => Some(Keyword::Drop),
             "ELSE" => Some(Keyword::Else),
             "END" => Some(Keyword::End),
-            "END" => Some(Keyword::EndExec),
+            "END-EXEC" => Some(Keyword::EndExec),
             "ESCAPE" => Some(Keyword::Escape),
             "EXCEPT" => Some(Keyword::Except),
             "EXCEPTION" => Some(Keyword::Exception),
