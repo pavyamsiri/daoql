@@ -14,67 +14,36 @@ impl<'a> Lexer<'a> {
     pub fn next_token(&mut self) -> Option<Token> {
         self.skip_whitespace();
 
-        let current_offset = self.offset;
-
         // Handle comments
-        if let Some(kind) = self.lex_inline_comment() {
-            return Some(Token {
-                kind,
-                span: Span {
-                    start: current_offset,
-                    length: self.offset - current_offset,
-                },
-            });
+        if let Some(token) = self.lex_inline_comment() {
+            return Some(token);
         }
 
         // Handle integer literals
-        if let Some(kind) = self.lex_integer_literal() {
-            return Some(Token {
-                kind,
-                span: Span {
-                    start: current_offset,
-                    length: self.offset - current_offset,
-                },
-            });
+        if let Some(token) = self.lex_integer_literal() {
+            return Some(token);
         }
 
         // Handle single character tokens
-        if let Some(kind) = self.lex_single_character_token() {
-            return Some(Token {
-                kind,
-                span: Span {
-                    start: current_offset,
-                    length: 1,
-                },
-            });
+        if let Some(token) = self.lex_single_character_token() {
+            return Some(token);
         }
 
         // Handle string literals
-        if let Some(kind) = self.lex_string_literal() {
-            return Some(Token {
-                kind,
-                span: Span {
-                    start: current_offset,
-                    length: self.offset - current_offset,
-                },
-            });
+        if let Some(token) = self.lex_string_literal() {
+            return Some(token);
         }
 
         // Handle identifiers or keywords
-        if let Some(kind) = self.lex_identifier_or_keyword() {
-            return Some(Token {
-                kind,
-                span: Span {
-                    start: current_offset,
-                    length: self.offset - current_offset,
-                },
-            });
+        if let Some(token) = self.lex_identifier_or_keyword() {
+            return Some(token);
         }
 
         None
     }
 
-    fn lex_single_character_token(&mut self) -> Option<TokenKind> {
+    fn lex_single_character_token(&mut self) -> Option<Token> {
+        let initial_offset = self.offset;
         let current_char = self.peek()?;
         let kind = match current_char {
             ',' => TokenKind::Comma,
@@ -85,13 +54,19 @@ impl<'a> Lexer<'a> {
         };
 
         self.advance();
-        Some(kind)
+        Some(Token {
+            kind,
+            span: Span {
+                start: initial_offset,
+                length: self.offset - initial_offset,
+            },
+        })
     }
 
-    fn lex_identifier_or_keyword(&mut self) -> Option<TokenKind> {
-        let current_offset = self.offset;
-        let current_char = self.peek()?;
-        if !current_char.is_ascii_alphabetic() {
+    fn lex_identifier_or_keyword(&mut self) -> Option<Token> {
+        let initial_offset = self.offset;
+        let first_char = self.peek()?;
+        if !first_char.is_ascii_alphabetic() {
             return None;
         }
         self.advance();
@@ -103,31 +78,40 @@ impl<'a> Lexer<'a> {
             }
         }
 
-        let token_slice = &self.source[current_offset..self.offset];
+        let token_slice = &self.source[initial_offset..self.offset];
         if token_slice.is_empty() {
             return None;
         }
 
-        match token_slice.to_uppercase().as_str() {
-            "SELECT" => Some(TokenKind::Keyword(Keyword::Select)),
-            "FROM" => Some(TokenKind::Keyword(Keyword::From)),
-            "CREATE" => Some(TokenKind::Keyword(Keyword::Create)),
-            "TABLE" => Some(TokenKind::Keyword(Keyword::Table)),
-            "INT" => Some(TokenKind::Keyword(Keyword::Int)),
-            "PRIMARY" => Some(TokenKind::Keyword(Keyword::Primary)),
-            "KEY" => Some(TokenKind::Keyword(Keyword::Key)),
-            "VARCHAR" => Some(TokenKind::Keyword(Keyword::VarChar)),
-            "DATE" => Some(TokenKind::Keyword(Keyword::Date)),
-            "DECIMAL" => Some(TokenKind::Keyword(Keyword::Decimal)),
-            "INSERT" => Some(TokenKind::Keyword(Keyword::Insert)),
-            "INTO" => Some(TokenKind::Keyword(Keyword::Into)),
-            "VALUE" => Some(TokenKind::Keyword(Keyword::Value)),
-            "VALUES" => Some(TokenKind::Keyword(Keyword::Values)),
-            _ => Some(TokenKind::Identifier),
-        }
+        let kind = match token_slice.to_uppercase().as_str() {
+            "SELECT" => TokenKind::Keyword(Keyword::Select),
+            "FROM" => TokenKind::Keyword(Keyword::From),
+            "CREATE" => TokenKind::Keyword(Keyword::Create),
+            "TABLE" => TokenKind::Keyword(Keyword::Table),
+            "INT" => TokenKind::Keyword(Keyword::Int),
+            "PRIMARY" => TokenKind::Keyword(Keyword::Primary),
+            "KEY" => TokenKind::Keyword(Keyword::Key),
+            "VARCHAR" => TokenKind::Keyword(Keyword::VarChar),
+            "DATE" => TokenKind::Keyword(Keyword::Date),
+            "DECIMAL" => TokenKind::Keyword(Keyword::Decimal),
+            "INSERT" => TokenKind::Keyword(Keyword::Insert),
+            "INTO" => TokenKind::Keyword(Keyword::Into),
+            "VALUE" => TokenKind::Keyword(Keyword::Value),
+            "VALUES" => TokenKind::Keyword(Keyword::Values),
+            _ => TokenKind::Identifier,
+        };
+
+        Some(Token {
+            kind,
+            span: Span {
+                start: initial_offset,
+                length: self.offset - initial_offset,
+            },
+        })
     }
 
-    fn lex_string_literal(&mut self) -> Option<TokenKind> {
+    fn lex_string_literal(&mut self) -> Option<Token> {
+        let initial_offset = self.offset;
         let current_char = self.peek()?;
         let (open_quote, kind) = match current_char {
             '"' => ('"', TokenKind::DoubleQuotedStringLiteral),
@@ -141,10 +125,17 @@ impl<'a> Lexer<'a> {
                 break;
             }
         }
-        Some(kind)
+        Some(Token {
+            kind,
+            span: Span {
+                start: initial_offset,
+                length: self.offset - initial_offset,
+            },
+        })
     }
 
-    fn lex_inline_comment(&mut self) -> Option<TokenKind> {
+    fn lex_inline_comment(&mut self) -> Option<Token> {
+        let initial_offset = self.offset;
         let current_char = self.peek()?;
         let next_char = self.peek_ahead(1)?;
         match (current_char, next_char) {
@@ -162,24 +153,37 @@ impl<'a> Lexer<'a> {
             self.advance();
         }
 
-        Some(TokenKind::InlineComment)
+        Some(Token {
+            kind: TokenKind::InlineComment,
+            span: Span {
+                start: initial_offset,
+                length: self.offset - initial_offset,
+            },
+        })
     }
 
-    fn lex_integer_literal(&mut self) -> Option<TokenKind> {
+    fn lex_integer_literal(&mut self) -> Option<Token> {
         // TODO: Handle hexadecimal
+        let initial_offset = self.offset;
         let current_char = self.peek()?;
-        if !current_char.is_digit(10) {
+        if !current_char.is_ascii_digit() {
             return None;
         }
 
         while let Some(c) = self.peek() {
-            if !c.is_digit(10) {
+            if !c.is_ascii_digit() {
                 break;
             }
             self.advance();
         }
 
-        Some(TokenKind::IntegerLiteral)
+        Some(Token {
+            kind: TokenKind::IntegerLiteral,
+            span: Span {
+                start: initial_offset,
+                length: self.offset - initial_offset,
+            },
+        })
     }
 
     fn skip_whitespace(&mut self) {
