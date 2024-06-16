@@ -11,6 +11,13 @@ impl<'a> Lexer<'a> {
         Self { source, offset: 0 }
     }
 
+    pub fn peek_next(&mut self) -> Option<Token> {
+        let old_offset = self.offset;
+        let next_token = self.next_token();
+        self.offset = old_offset;
+        next_token
+    }
+
     pub fn next_token(&mut self) -> Option<Token> {
         self.skip_whitespace();
 
