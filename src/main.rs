@@ -21,14 +21,31 @@ fn main() {
     let text = read_file(file_path).expect("Can't read file!");
 
     println!("Lexing {file_path}");
-    println!("Text = {}", text);
     let mut lexer = Lexer::new(&text);
+    let mut position = 0;
+    let mut highlighted_text = String::new();
+
     while let Some(token) = lexer.next_token() {
-        let token_kind = &token.kind;
-        let span = &token.span;
-        let token_slice = &text[span.start..span.start + span.length];
-        println!("Token {token_kind}: {token_slice}");
+        // Append text before the token
+        if position < token.span.start {
+            highlighted_text.push_str(&text[position..token.span.start]);
+        }
+
+        // Append the highlighted token
+        highlighted_text.push_str(token.begin_highlight());
+        highlighted_text.push_str(&text[token.span.range()]);
+        highlighted_text.push_str(token.end_highlight());
+
+        // Update the position
+        position = token.span.end();
     }
+
+    // Append any remaining text after the last token
+    if position < text.len() {
+        highlighted_text.push_str(&text[position..]);
+    }
+
+    print!("{highlighted_text}");
 }
 
 fn read_file<P: AsRef<Path>>(path: P) -> io::Result<String> {
