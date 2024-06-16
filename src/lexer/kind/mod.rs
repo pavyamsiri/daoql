@@ -3,10 +3,26 @@ pub use keyword::Keyword;
 
 #[derive(Debug)]
 pub enum TokenKind {
+    // percent %
+    // plus sign +
+    // minus sign -
+    // solidus /
+    // colon :
+    // less than operator <
+    // equals operator =
+    // greater than operator >
+    // underscore _
+    // ampersand &
+    // question mark ?
+    // circumflex ^
+    // tilde ~
+    // vertical bar |
+    Asterisk,
     Comma,
     Semicolon,
     LeftParenthesis,
     RightParenthesis,
+    Period,
 
     Keyword(Keyword),
     Identifier,
@@ -15,6 +31,9 @@ pub enum TokenKind {
     DoubleQuotedStringLiteral,
 
     IntegerLiteral,
+    DecimalLiteral,
+    HexadecimalLiteral,
+    ExponentLiteral,
 
     InlineComment,
 }

@@ -19,8 +19,8 @@ impl<'a> Lexer<'a> {
             return Some(token);
         }
 
-        // Handle integer literals
-        if let Some(token) = self.lex_integer_literal() {
+        // Handle numeric literals
+        if let Some(token) = self.lex_numeric_literal() {
             return Some(token);
         }
 
@@ -50,6 +50,8 @@ impl<'a> Lexer<'a> {
             ';' => TokenKind::Semicolon,
             '(' => TokenKind::LeftParenthesis,
             ')' => TokenKind::RightParenthesis,
+            '*' => TokenKind::Asterisk,
+            '.' => TokenKind::Period,
             _ => return None,
         };
 
@@ -83,23 +85,8 @@ impl<'a> Lexer<'a> {
             return None;
         }
 
-        let kind = match token_slice.to_uppercase().as_str() {
-            "SELECT" => TokenKind::Keyword(Keyword::Select),
-            "FROM" => TokenKind::Keyword(Keyword::From),
-            "CREATE" => TokenKind::Keyword(Keyword::Create),
-            "TABLE" => TokenKind::Keyword(Keyword::Table),
-            "INT" => TokenKind::Keyword(Keyword::Int),
-            "PRIMARY" => TokenKind::Keyword(Keyword::Primary),
-            "KEY" => TokenKind::Keyword(Keyword::Key),
-            "VARCHAR" => TokenKind::Keyword(Keyword::VarChar),
-            "DATE" => TokenKind::Keyword(Keyword::Date),
-            "DECIMAL" => TokenKind::Keyword(Keyword::Decimal),
-            "INSERT" => TokenKind::Keyword(Keyword::Insert),
-            "INTO" => TokenKind::Keyword(Keyword::Into),
-            "VALUE" => TokenKind::Keyword(Keyword::Value),
-            "VALUES" => TokenKind::Keyword(Keyword::Values),
-            _ => TokenKind::Identifier,
-        };
+        let kind = Keyword::parse(token_slice.to_uppercase().as_str())
+            .map_or(TokenKind::Identifier, TokenKind::Keyword);
 
         Some(Token {
             kind,
@@ -162,15 +149,32 @@ impl<'a> Lexer<'a> {
         })
     }
 
-    fn lex_integer_literal(&mut self) -> Option<Token> {
-        // TODO: Handle hexadecimal
+    fn lex_numeric_literal(&mut self) -> Option<Token> {
         let initial_offset = self.offset;
-        let current_char = self.peek()?;
-        if !current_char.is_ascii_digit() {
+        let first_char = self.peek()?;
+        let second_char = self.peek_ahead(1)?;
+
+        // Hexadecimal
+        if let ('0', 'x') = (first_char, second_char) {
+            return self.lex_hexadecimal_literal();
+        }
+
+        if !first_char.is_ascii_digit() {
             return None;
         }
 
+        let mut kind = TokenKind::IntegerLiteral;
         while let Some(c) = self.peek() {
+            if c == '.' {
+                kind = TokenKind::DecimalLiteral;
+                self.advance();
+                continue;
+            } else if c == 'e' || c == 'E' {
+                kind = TokenKind::ExponentLiteral;
+                self.advance();
+                continue;
+            }
+
             if !c.is_ascii_digit() {
                 break;
             }
@@ -178,7 +182,35 @@ impl<'a> Lexer<'a> {
         }
 
         Some(Token {
-            kind: TokenKind::IntegerLiteral,
+            kind,
+            span: Span {
+                start: initial_offset,
+                length: self.offset - initial_offset,
+            },
+        })
+    }
+
+    fn lex_hexadecimal_literal(&mut self) -> Option<Token> {
+        let initial_offset = self.offset;
+        let first_char = self.peek()?;
+        let second_char = self.peek_ahead(1)?;
+        match (first_char, second_char) {
+            ('0', 'x') => {}
+            _ => return None,
+        }
+
+        self.advance();
+        self.advance();
+
+        while let Some(c) = self.peek() {
+            if !c.is_digit(16) {
+                break;
+            }
+            self.advance();
+        }
+
+        Some(Token {
+            kind: TokenKind::HexadecimalLiteral,
             span: Span {
                 start: initial_offset,
                 length: self.offset - initial_offset,
